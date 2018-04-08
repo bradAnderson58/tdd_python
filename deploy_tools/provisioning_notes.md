@@ -29,9 +29,15 @@ sudo apt-get install nginx git python36 python3.6-env
 Assume we have a user account at /home/ubuntu
 
 /home/ubuntu
+
 └── sites
+
 		└── SITENAME
+
 				├── database
+
 				├── source
+
 				├── static
+
 				└── virtualenv
