@@ -30,14 +30,9 @@ Assume we have a user account at /home/ubuntu
 
 /home/ubuntu
 
-└── sites
-
-		└── SITENAME
-
-				├── database
-
-				├── source
-
-				├── static
-
-				└── virtualenv
+    └── sites
+        └── SITENAME
+            ├── database
+            ├── source
+            ├── static
+            └── virtualenv
