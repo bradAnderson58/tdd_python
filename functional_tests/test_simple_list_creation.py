@@ -41,10 +41,7 @@ class NewVisitorTest(FunctionalTest):
     def test_multiple_users_can_start_lists_with_different_urls(self):
         # User1 (Edith) starts a new todo list
         self.browser.get(self.live_server_url)
-        inputbox = self.get_item_input_box()
-        inputbox.send_keys('Buy peacock feathers')
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: Buy peacock feathers')
+        self.add_list_item('Buy peacock feathers')
 
         # User notices that her list has a unique url
         edith_list_url = self.browser.current_url
@@ -62,10 +59,7 @@ class NewVisitorTest(FunctionalTest):
         self.assertNotIn('make fly', page_text)
 
         # Francis starts a new list
-        inputbox = self.get_item_input_box()
-        inputbox.send_keys('Buy milk')
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: Buy milk')
+        self.add_list_item('Buy milk')
 
         # Francis gets his own unique url
         francis_list_url = self.browser.current_url
