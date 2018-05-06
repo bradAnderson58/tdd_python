@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from lists.models import Item, List
 from lists.forms import ItemForm, ExistingListItemForm
 
-# Create your views here.
+
 def home_page(request):
     return render(request, 'home.html', {'form': ItemForm()})
 
@@ -27,3 +27,6 @@ def new_list(request):
         return redirect(list_)
     else:
         return render(request, 'home.html', {"form": form})
+
+def my_lists(request, email):
+    return render(request, 'my_lists.html')
