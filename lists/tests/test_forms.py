@@ -1,7 +1,10 @@
 
 from django.test import TestCase
+import unittest
+from unittest.mock import patch, Mock
 
-from lists.forms import ItemForm, ExistingListItemForm, EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR
+from lists.forms import (ItemForm, ExistingListItemForm, NewListForm,
+                            EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR)
 from lists.models import Item, List
 
 class ItemFormTest(TestCase):
@@ -23,8 +26,10 @@ class ItemFormTest(TestCase):
         self.assertEqual(new_item, Item.objects.first())
         self.assertEqual(new_item.text, 'do me')
         self.assertEqual(new_item.list, list_)
-    
+
+
 class ExistingListItemFormTest(TestCase):
+
     def test_form_renders_item_text_input(self):
         list_ = List.objects.create()
         form = ExistingListItemForm(for_list=list_)
@@ -48,3 +53,22 @@ class ExistingListItemFormTest(TestCase):
         form = ExistingListItemForm(for_list=list_, data={'text': 'hi'})
         new_item = form.save()
         self.assertEqual(new_item, Item.objects.all()[0])
+
+
+class NewListFormTest(unittest.TestCase):
+
+    @patch('lists.forms.List.create_new')
+    def test_save_creates_new_list_and_item_from_post_data_not_authenticated(self, mockList_create_new):
+        user = Mock(is_authenticated=False)
+        form = NewListForm(data={'text': 'new item text'})
+        form.is_valid()
+        form.save(owner=user)
+        mockList_create_new.assert_called_once_with(first_item_text='new item text')
+
+    @patch('lists.forms.List.create_new')
+    def test_save_creates_new_list_with_owner_is_authenticated(self, mockList_create_new):
+        user = Mock(is_authenticated=True)
+        form = NewListForm(data={'text': 'new item text'})
+        form.is_valid()
+        form.save(owner=user)
+        mockList_create_new.assert_called_once_with(first_item_text='new item text', owner=user)
