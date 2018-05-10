@@ -136,11 +136,12 @@ class NewListIntegratedTest(TestCase):
         self.assertEqual(List.objects.count(), 0)
         self.assertEqual(Item.objects.count(), 0)
 
-    @unittest.skip
-    def test_list_owner_is_saved_if_user_is_authenticated(self, mockItemForm, mockList):
+    def test_list_owner_is_saved_if_user_is_authenticated(self):
         user = User.objects.create(email='a@b.com')
         self.client.force_login(user)
-        mock_list = mockList.return_value
+        self.client.post('/lists/new', data={'text': 'new item'})
+        list_ = List.objects.first()
+        self.assertEqual(list_.owner.email, 'a@b.com')
 
     def check_owner_assigned():
         self.assertEqual(mock_list.owner, user)
