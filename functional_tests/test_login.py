@@ -79,3 +79,4 @@ class LoginTest(FunctionalTest):
 
         # she is logged out
         self.wait_to_be_logged_out(email=test_email)
+
