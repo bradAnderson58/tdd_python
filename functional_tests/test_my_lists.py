@@ -3,6 +3,7 @@ from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY, get_user_model
 from django.contrib.sessions.backends.db import SessionStore
 from .base import FunctionalTest
 from .list_page import ListPage
+from .my_lists_page import MyListsPage
 from .server_tools import create_session_on_server
 User = get_user_model()
 
@@ -25,7 +26,7 @@ class MyListsTest(FunctionalTest):
         first_list_url = self.browser.current_url
 
         # she notices a "My lists" link, for the first time
-        self.browser.find_element_by_link_text('My Lists').click()
+        my_lists = MyListsPage(self).go_to_my_lists_page()
 
         # she sees that her list is in there, names according to its first item
         self.wait_for(
@@ -42,7 +43,7 @@ class MyListsTest(FunctionalTest):
         second_list_url = self.browser.current_url
 
         # under "my lists", her new list appears
-        self.browser.find_element_by_link_text('My Lists').click()
+        my_lists.go_to_my_lists_page()
         self.wait_for(
             lambda: self.browser.find_element_by_link_text('Click cows')
         )
