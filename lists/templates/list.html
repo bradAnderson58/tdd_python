@@ -17,3 +17,8 @@
     {% csrf_token %}
   </form>
 {% endblock %}
+
+{% for name in list.shared_with.all %}
+  <span>something</span>
+  {{name}}
+{% endfor %}
