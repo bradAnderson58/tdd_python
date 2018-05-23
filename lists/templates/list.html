@@ -11,4 +11,9 @@
       <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
     {% endfor %}
   </table>
+  <form class="navbar-form navbar-right" method="POST" action="lists/<list_id>/share">
+    <span>Share this list:</span>
+    <input class="form-control" name="sharee" type="text" placeholder="your-friend@example.com" />
+    {% csrf_token %}
+  </form>
 {% endblock %}
