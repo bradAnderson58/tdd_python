@@ -22,11 +22,12 @@ def view_list(request, list_id):
     return render(request, 'list.html', {'list': list_, 'form': form})
 
 def new_list(request):
-   form = NewListForm(data=request.POST)
-   if form.is_valid():
+    form = NewListForm(data=request.POST)
+    if form.is_valid():
        list_ = form.save(owner=request.user)
+
        return redirect(list_)
-   return render(request, 'home.html', {'form': form})
+    return render(request, 'home.html', {'form': form})
 
 def my_lists(request, email):
     owner = User.objects.get(email=email)

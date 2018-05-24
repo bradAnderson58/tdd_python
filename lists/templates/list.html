@@ -11,14 +11,22 @@
       <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
     {% endfor %}
   </table>
-  <form class="navbar-form navbar-right" method="POST" action="{% url 'share_list' list.id %}">
-    <span>Share this list:</span>
-    <input class="form-control" name="sharee" type="text" placeholder="your-friend@example.com" />
-    {% csrf_token %}
-  </form>
 {% endblock %}
 
-{% for name in list.shared_with.all %}
-  <span>something</span>
-  {{name}}
-{% endfor %}
+{% block extra_content %}
+  <div class="col-md-6">
+    <h3>List shared with:</h3>
+    <ul>
+      {% for user in list.shared_with.all %}
+        {{user.email}}
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="col-md-6">
+    <form class="navbar-form navbar-right" method="POST" action="{% url 'share_list' list.id %}">
+      <h3>Share this list:</h3>
+      <input class="form-control" name="sharee" type="text" placeholder="your-friend@example.com" />
+      {% csrf_token %}
+    </form>
+  </div>
+{% endblock %}
