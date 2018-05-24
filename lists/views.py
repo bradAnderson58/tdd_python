@@ -25,7 +25,6 @@ def new_list(request):
     form = NewListForm(data=request.POST)
     if form.is_valid():
        list_ = form.save(owner=request.user)
-
        return redirect(list_)
     return render(request, 'home.html', {'form': form})
 
@@ -35,9 +34,9 @@ def my_lists(request, email):
 
 def share_list(request, list_id):
     list_ = List.objects.get(id=list_id)
-    if 'email' not in request.POST:
+    if 'sharee' not in request.POST:
         return redirect(list_)
-    email = request.POST['email']
+    email = request.POST['sharee']
     user = User.objects.get(email=email)
     list_.shared_with.add(user)
     return redirect(list_)

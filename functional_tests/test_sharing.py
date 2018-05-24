@@ -58,4 +58,4 @@ class SharingTest(FunctionalTest):
         # when edith refreshes the page, she sees Onicerferous's addition
         self.browser = edith_browser
         self.browser.refresh()
-        list_page.wait_for_row_in_list_table('Hi Edith', 2)
+        list_page.wait_for_row_in_list_table('Hi Edith!', 2)
