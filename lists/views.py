@@ -2,14 +2,25 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.views.generic import FormView, CreateView
 User = get_user_model()
 
 from lists.models import Item, List
 from lists.forms import ItemForm, ExistingListItemForm, NewListForm
 
 
-def home_page(request):
-    return render(request, 'home.html', {'form': ItemForm()})
+class  HomePageView(FormView):
+    template_name = 'home.html'
+    form_class = ItemForm
+
+class NewListView(CreateView):
+    template_name = 'home.html'
+    form_class = NewListForm
+
+    def form_valid(self, form):
+        list_ = form.save(owner=self.request.user)
+        return redirect(list_)
+    
 
 def view_list(request, list_id):
     list_ = List.objects.get(id=list_id)
