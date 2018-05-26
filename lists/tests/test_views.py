@@ -6,9 +6,9 @@ from django.contrib.auth import get_user_model
 from unittest.mock import patch, Mock
 import unittest
 
-from lists.views import new_list
 from lists.models import Item, List
 from lists.forms import ItemForm, ExistingListItemForm, EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR
+from lists.views import NewListView
 User = get_user_model()
 
 
@@ -124,22 +124,23 @@ class NewListIntegratedTest(TestCase):
         list_ = List.objects.first()
         self.assertEqual(list_.owner.email, 'a@b.com')
 
-
+'''
 @patch('lists.views.NewListForm')
 class NewListViewUnitTest(unittest.TestCase):
     def setUp(self):
         self.request = HttpRequest()
         self.request.POST['text'] = 'new list item'
         self.request.user = Mock()
+        self.listView = NewListView()
 
     def test_passes_POST_data_to_NewListForm(self, mockNewListForm):
-        new_list(self.request)
+        self.listView.post(self.request)
         mockNewListForm.assert_called_once_with(data=self.request.POST)
 
     def test_saves_form_with_owner_if_valid_form(self, mockNewForm):
         mock_form = mockNewForm.return_value
         mock_form.is_valid.return_value = True
-        new_list(self.request)
+        self.listView.post(self.request)
         mock_form.save.assert_called_once_with(owner=self.request.user)
 
     @patch('lists.views.redirect')
@@ -147,7 +148,7 @@ class NewListViewUnitTest(unittest.TestCase):
         mock_form = mockNewListForm.return_value
         mock_form.is_valid.return_value = True
 
-        response = new_list(self.request)
+        response = self.listView.post(self.request)
 
         self.assertEqual(response, mock_redirect.return_value)
         mock_redirect.assert_called_once_with(mock_form.save.return_value)
@@ -157,7 +158,7 @@ class NewListViewUnitTest(unittest.TestCase):
         mock_form = mockNewListForm.return_value
         mock_form.is_valid.return_value = False
 
-        response = new_list(self.request)
+        response = self.listView.post(self.request)
 
         self.assertEqual(response, mock_render.return_value)
         mock_render.assert_called_once_with(
@@ -167,9 +168,9 @@ class NewListViewUnitTest(unittest.TestCase):
     def test_does_not_save_if_form_invalid(self, mockNewListForm):
         mock_form = mockNewListForm.return_value
         mock_form.is_valid.return_value = False
-        new_list(self.request)
+        self.listView.post(self.request)
         self.assertFalse(mock_form.save.called)
-
+'''
 
 class MyListsTest(TestCase):
     def test_my_lists_url_renders_my_lists_template(self):
