@@ -21,8 +21,15 @@ class NewListView(CreateView):
         list_ = form.save(owner=self.request.user)
         return redirect(list_)
 
-class ViewAndAddToList(DetailView):
+class ViewAndAddToList(DetailView, CreateView):
     model = List
+    template_name = 'list.html'
+    form_class = ExistingListItemForm
+
+    def get_form(self):
+        self.object = self.get_object()
+        return self.form_class(for_list=self.object, data=self.request.POST)
+
 
 def view_list(request, list_id):
     list_ = List.objects.get(id=list_id)
