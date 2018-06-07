@@ -51,9 +51,19 @@
         assert.equal($('.has-error').is(':visible'), true);
       });
 
-      QUnit.test("should get items by ajax on initialize", function(assert) {
+      QUnit.test("should call updateItems on initialize", function(assert) {
         var url = '/getitems/';
+        sandbox.spy(window.superlists, 'updateItems');
         window.superlists.initialize(url);
+        assert.equal(
+          window.superlists.updateItems.lastCall.args,
+          url
+        );
+      });
+
+      QUnit.test("updateItems should get correct url by ajax", function(assert) {
+        var url = '/getitems/';
+        window.superlists.updateItems(url);
 
         assert.equal(server.requests.length, 1);
         var request = server.requests[0];
@@ -61,7 +71,7 @@
         assert.equal(request.method, 'GET');
       });
 
-      QUnit.test("should fill in lists table from ajax response", function(assert) {
+      QUnit.test("updateItems should fill in lists table from ajax response", function(assert) {
         var url = '/getitems/';
         var responseData = [
           {'id': 101, 'text': 'item 1 text'},
@@ -70,7 +80,7 @@
         server.respondWith('GET', url, [
           200, {'Content-Type': "application/json"}, JSON.stringify(responseData)
         ]);
-        window.superlists.initialize(url);
+        window.superlists.updateItems(url);
 
         server.respond();
 
