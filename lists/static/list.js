@@ -25,6 +25,8 @@ window.superlists.initialize = function(url) {
       $.post(url, {
         'text': form.find('input[name="text"]').val(),
         'csrfmiddlewaretoken': form.find('input[name="csrfmiddlewaretoken"]').val(),
+      }).done(function() {
+        window.superlists.updateItems(url);
       });
     });
   }
