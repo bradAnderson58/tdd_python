@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from lists.models import List, Item
 from lists.forms import DUPLICATE_ITEM_ERROR, EMPTY_ITEM_ERROR
 
+from rest_framework import routers, serializers, viewsets
 
 def lists(request, list_id):
     list_ = List.objects.get(id=list_id)
@@ -30,3 +31,22 @@ def lists(request, list_id):
         json.dumps(item_dicts),
         content_type='application/json'
     )
+
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ('id', 'text')
+
+class ListSerializer(serializers.ModelSerializer):
+    items = ItemSerializer(many=True, source='item_set')
+
+    class Meta:
+        model = List
+        fields = ('id', 'items')
+
+class ListViewSet(viewsets.ModelViewSet):
+    queryset = List.objects.all()
+    serializer_class = ListSerializer
+
+router = routers.SimpleRouter()
+router.register(r'lists', ListViewSet)
