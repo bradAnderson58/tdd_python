@@ -8,7 +8,7 @@ window.superlists.updateItems = function(url) {
       rows += '\n<tr><td>' + (i+1) + ': ' + item.text + '</td></tr>';
     }
     $('#id_list_table').html(rows);
-  })
+  });
 }
 
 window.superlists.initialize = function(url) {
@@ -26,7 +26,12 @@ window.superlists.initialize = function(url) {
         'text': form.find('input[name="text"]').val(),
         'csrfmiddlewaretoken': form.find('input[name="csrfmiddlewaretoken"]').val(),
       }).done(function() {
+        $('.has-error').hide();
         window.superlists.updateItems(url);
+      }).fail(function(response) {
+        var message = JSON.parse(response.responseText);
+        $('.has-error').show();
+        $('.has-error .help-block').text(message.error);
       });
     });
   }

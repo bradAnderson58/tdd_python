@@ -58,14 +58,12 @@
                 {% csrf_token %}
                 <div class='form-group has-error'>
                   <div class='help-block'>
-                    {% if form.errors %}
-                      {{ form.text.errors }}
-                    {% endif %}
+                    
                   </div>
                 </div>
               </form>
             {% endblock %}
-            
+
           </div>
         </div>
       </div>
