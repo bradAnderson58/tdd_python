@@ -1,9 +1,23 @@
 
 import json
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 
 from lists.models import List, Item
 from lists.forms import DUPLICATE_ITEM_ERROR, EMPTY_ITEM_ERROR
+
+class ItemsAPITest(TestCase):
+    base_url = reverse('item-list')
+    
+    def test_POSTing_a_new_item(self):
+        list_ = List.objects.create()
+        response = self.client.post(
+            self.base_url,
+            {'list': list_.id, 'text': 'new item'},
+        )
+        self.assertEqual(response.status_code, 201)
+        new_item = list_.item_set.get()
+        self.assertEqual(new_item.text, 'new item')
 
 class ListAPITest(TestCase):
     base_url = '/api/lists/{}/'
@@ -23,22 +37,11 @@ class ListAPITest(TestCase):
         response = self.client.get(self.base_url.format(our_list.id))
         self.assertEqual(
             json.loads(response.content.decode('utf8')),
-            [
-                {'id': item1.id, 'text': item1.text},
-                {'id': item2.id, 'text': item2.text}
-            ]
+            {'id': our_list.id, 'items': [
+                {'id': item1.id, 'list': our_list.id, 'text': item1.text},
+                {'id': item2.id, 'list': our_list.id, 'text': item2.text},
+            ]}
         )
-
-    def test_POST_a_new_item(self):
-        list_ = List.objects.create()
-        response = self.client.post(
-            self.base_url.format(list_.id),
-            {'text': 'new item'}
-        )
-
-        self.assertEqual(response.status_code, 201)
-        new_item = list_.item_set.get()
-        self.assertEqual(new_item.text, 'new item')
 
     def post_empty_input(self):
         list_ = List.objects.create()

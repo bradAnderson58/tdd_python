@@ -10,6 +10,7 @@ def lists(request, list_id):
     list_ = List.objects.get(id=list_id)
     if request.method == 'POST':
         if request.POST['text'] is '':
+            print('HEREER')
             return HttpResponse(
                 status=400,
                 content=json.dumps({'error': EMPTY_ITEM_ERROR})
@@ -35,7 +36,7 @@ def lists(request, list_id):
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ('id', 'text')
+        fields = ('id', 'list', 'text')
 
 class ListSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True, source='item_set')
@@ -48,5 +49,10 @@ class ListViewSet(viewsets.ModelViewSet):
     queryset = List.objects.all()
     serializer_class = ListSerializer
 
+class ItemViewSet(viewsets.ModelViewSet):
+    serializer_class = ItemSerializer
+    queryset = Item.objects.all()
+
 router = routers.SimpleRouter()
 router.register(r'lists', ListViewSet)
+router.register(r'items', ItemViewSet)

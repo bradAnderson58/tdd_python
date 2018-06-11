@@ -3,35 +3,39 @@ window.superlists = {};
 window.superlists.updateItems = function(url) {
   $.get(url).done(function(response) {
     var rows = '';
-    for (var i = 0; i < response.length; ++i) {
-      var item = response[i];
+    for (var i = 0; i < response.items.length; ++i) {
+      var item = response.items[i];
       rows += '\n<tr><td>' + (i+1) + ': ' + item.text + '</td></tr>';
     }
     $('#id_list_table').html(rows);
   });
 }
 
-window.superlists.initialize = function(url) {
+window.superlists.initialize = function(params) {
   $('input[name="text"]').on('keypress', function() {
     $('.has-error').hide();
   });
 
-  if (url) {
-    window.superlists.updateItems(url);
+  if (params) {
+    window.superlists.updateItems(params.listApiUrl);
 
     var form = $('#id_item_form');
     form.on('submit', function(event) {
       event.preventDefault();
-      $.post(url, {
+      $.post(params.itemsApiUrl, {
+        'list': params.listId,
         'text': form.find('input[name="text"]').val(),
         'csrfmiddlewaretoken': form.find('input[name="csrfmiddlewaretoken"]').val(),
       }).done(function() {
         $('.has-error').hide();
-        window.superlists.updateItems(url);
-      }).fail(function(response) {
-        var message = JSON.parse(response.responseText);
+        window.superlists.updateItems(params.listApiUrl);
+      }).fail(function(xhr) {
         $('.has-error').show();
-        $('.has-error .help-block').text(message.error);
+        if (xhr.responseJSON) {
+          $('.has-error .help-block').text(xhr.responseJSON.text || xhr.responseJSON.non_field_errors);
+        } else {
+          $('.has-error .help-block').text('Error talking to server. Please try again.');
+        }
       });
     });
   }
