@@ -3,3 +3,4 @@ geckodriver.log
 __pycache__
 *.pyc
 lists/static/node_modules
+functional_tests/screendumps

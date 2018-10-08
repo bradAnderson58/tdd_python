@@ -4,33 +4,157 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Javascript tests</title>
-    <link rel="stylesheet" href="../node_modules/qunit/qunit/qunit.css">
+    <link rel="stylesheet" href="qunit.css">
   </head>
 
   <body>
     <div id="qunit"></div>
     <div id="qunit-fixture">
-      <form>
+      <form id="id_item_form">
         <input name="text" />
-        <div class="has-error">Error text</div>
+        <input type="hidden" name="csrfmiddlewaretoken" value="tokey" />
+        <div class="has-error">
+          <div class="help-block">
+            Error text
+          </div>>
+        </div>
       </form>
+      <table id="id_list_table">
+      </table>
     </div>
 
-    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../jquery/jquery.min.js"></script>
     <script src="../list.js"></script>
-    <script src="../node_modules/qunit/qunit/qunit.js"></script>
+    <script src="qunit.js"></script>
+    <script src="sinon.js"></script>
 
     <script>
-      console.log("quint tests start");
+      // global sinon
+      var server, sandbox;
+      QUnit.testStart(function() {
+        server = sinon.fakeServer.create();
+        sandbox = sinon.sandbox.create();
+      });
+      QUnit.testDone(function() {
+        server.restore();
+        sandbox.restore();
+      });
+
       QUnit.test("errors should be hidden on key press", function(assert) {
-        initialize();
+        window.superlists.initialize();
         $('input[name="text"]').trigger('keypress');
         assert.equal($('.has-error').is(':visible'), false);
       });
 
       QUnit.test("errors arent hidden if no key press", function(assert) {
-        initialize()
+        window.superlists.initialize()
         assert.equal($('.has-error').is(':visible'), true);
+      });
+
+      QUnit.test("should call updateItems on initialize", function (assert) {
+        var params = {
+          listApiUrl: '/list/api/x/',
+          itemsApiUrl: '/items/api/url/',
+          listId: 7
+        };
+        sandbox.spy(window.superlists, 'updateItems');
+        window.superlists.initialize(params);
+        assert.equal(
+          window.superlists.updateItems.lastCall.args,
+          params.listApiUrl
+        );
+      });
+
+      QUnit.test("updateItems should get correct url by ajax", function(assert) {
+        var url = '/getitems/';
+        window.superlists.updateItems(url);
+
+        assert.equal(server.requests.length, 1);
+        var request = server.requests[0];
+        assert.equal(request.url, url);
+        assert.equal(request.method, 'GET');
+      });
+
+      QUnit.test("updateItems should fill in lists table from ajax response", function (assert) {
+        var url = '/given/api/url';
+        var responseData = {id: 7, items: [
+          {id: 101, list: 3, text: 'item 1 text'},
+          {id: 102, list: 3, text: 'item 2 text'},
+        ]};
+        server.respondWith('GET', url, [
+          200, {"Content-Type": "application/json"}, JSON.stringify(responseData)
+        ]);
+        window.superlists.updateItems(url);
+        server.respond();
+        var rows = $('#id_list_table tr');
+        assert.equal(rows.length, 2);
+        var row1 = $('#id_list_table tr:first-child td');
+        assert.equal(row1.text(), '1: item 1 text');
+        var row2 = $('#id_list_table tr:last-child td');
+        assert.equal(row2.text(), '2: item 2 text');
+      });
+
+      QUnit.test("should intercept form submit and do ajax post", function (assert) {
+        var params = {
+          listApiUrl: '/list/api/x/',
+          itemsApiUrl: '/items/api/url/',
+          listId: 7
+        };
+        window.superlists.initialize(params);
+        $('#id_item_form input[name="text"]').val('user input');
+        $('#id_item_form input[name="csrfmiddlewaretoken"]').val('tokeney');
+        $('#id_item_form').submit();
+        assert.equal(server.requests.length, 2);
+        var request = server.requests[1];
+        assert.equal(request.url, params.itemsApiUrl);
+        assert.equal(request.method, "POST");
+        assert.equal(
+          request.requestBody,
+          'list=7&text=user+input&csrfmiddlewaretoken=tokeney'
+        );
+      });
+
+      QUnit.test("should call updateItems after successful post", function (assert) {
+        var params = {
+          listApiUrl: '/list/api/x/',
+          itemsApiUrl: '/items/api/url/',
+          listId: 7
+        };
+        window.superlists.initialize(params);
+        var response = [
+          201,
+          {"Content-Type": "application/json"},
+          JSON.stringify({}),
+        ];
+        server.respondWith('POST', params.itemsApiUrl, response);
+        $('#id_item_form input[name="text"]').val('user input');
+        $('#id_item_form input[name="csrfmiddlewaretoken"]').val('tokeney');
+        $('#id_item_form').submit();
+        sandbox.spy(window.superlists, 'updateItems');
+        server.respond();
+        assert.equal(
+          window.superlists.updateItems.lastCall.args,
+          params.listApiUrl
+        );
+      });
+
+      QUnit.test("should display errors on post failure", function (assert) {
+        var params = {
+          listApiUrl: '/list/api/x/',
+          itemsApiUrl: '/items/api/url/',
+          listId: 7
+        };
+        window.superlists.initialize(params);
+        server.respondWith('POST', params.itemsApiUrl, [
+          400,
+          {"Content-Type": "application/json"},
+          JSON.stringify({'text': ['something is amiss']})
+        ]);
+        $('.has-error').hide();
+        $('#id_item_form').submit();
+        server.respond(); // post
+        assert.equal($('.has-error').is(':visible'), true);
+        assert.equal($('.has-error .help-block').text(), 'something is amiss');
       });
     </script>
   </body>

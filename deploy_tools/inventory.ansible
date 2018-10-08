@@ -1,0 +1,5 @@
+[live]
+pontificae.com ansible_become=yes ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/bradanderson/keys/history-key-pair.pem
+
+[staging]
+staging.pontificae.com ansible_become=yes ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/bradanderson/keys/history-key-pair.pem

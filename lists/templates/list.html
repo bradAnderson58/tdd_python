@@ -7,8 +7,36 @@
 
 {% block table %}
   <table id="id_list_table" class="table">
-    {% for item in list.item_set.all %}
-      <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
-    {% endfor %}
   </table>
 {% endblock %}
+
+{% block extra_content %}
+  <h2 id='id_list_owner'>{{ list.owner.email }}</h2>
+  <div class="col-md-6">
+    <h3>List shared with:</h3>
+    <ul class='list-sharee'>
+      {% for user in list.shared_with.all %}
+        {{user.email}}
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="col-md-6">
+    <form class="navbar-form navbar-right" method="POST" action="{% url 'share_list' list.id %}">
+      <h3>Share this list:</h3>
+      <input class="form-control" name="sharee" type="text" placeholder="your-friend@example.com" />
+      {% csrf_token %}
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function () {
+      window.superlists.initialize({
+        listApiUrl: "{% url 'list-detail' list.id %}",
+        itemsApiUrl: "{% url 'item-list' %}",
+        listId: {{ list.id }},
+      });
+    });
+  </script>
+{% endblock scripts %}

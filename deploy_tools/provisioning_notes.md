@@ -24,6 +24,7 @@ sudo apt-get install nginx git python36 python3.6-env
 
 * see `gunicorn-systemd.template.service`
 * replace SITENAME with site name, eg `staging.mydomain.com`
+* replace SECRET with email password
 
 ## Folder structure
 Assume we have a user account at /home/ubuntu
